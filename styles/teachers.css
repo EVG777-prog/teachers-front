@@ -1,0 +1,112 @@
+.teachers {
+  text-align: center;
+  margin-top: 10rem;
+  margin-bottom: 10rem;
+  padding: 0 5.6%;
+}
+
+.teachers h2 {
+  font-family: "Exo", sans-serif;
+  color: black;
+  font-size: 3.6rem;
+  font-weight: 700;
+  margin-bottom: 5rem;
+}
+
+.teachers-container {
+  padding: 3rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(30rem, 1fr));
+  gap: 3rem;
+  overflow: hidden;
+  transition: max-height 0.5s ease-in-out; /* Плавный переход высоты */
+}
+
+.teacher {
+  background: transparent;
+  padding: 1.5rem;
+  /*height: auto;
+  */
+  border: 1px solid black;
+  border-radius: 20px;
+  box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.1); /* Тень справа и снизу */
+  transition: box-shadow 0.3s ease-in-out; /* Плавное изменение тени при наведении */
+  position: relative;
+}
+
+.teacher:hover {
+  box-shadow: 10px 10px 20px rgba(0, 0, 0, 0.2); /* Увеличение тени при наведении */
+}
+
+.teacher-photo {
+  width: 50%;
+  height: auto;
+  border-radius: 50%;
+  margin-bottom: 1rem;
+}
+
+.teacher h3 {
+  font-family: "Exo", sans-serif;
+  color: #ff9bab;
+  font-size: 2.1rem;
+  margin-bottom: 1rem;
+}
+
+.teacher p {
+  border-top: 1px solid #a3b6ba;
+  padding-top: 1rem;
+  font-family: Helvetica Neue, "Source Sans Pro";
+  font-size: 1.6rem;
+  text-align: left;
+  line-height: 1.5;
+}
+
+.teachers .show-more {
+  width: 100%;
+  height: 5rem;
+  background-color: #ff9bab;
+  border: none;
+  border-radius: 5px;
+  font-size: 2rem;
+  font-family: Helvetica Neue, "Source Sans Pro";
+  margin-top: 3rem;
+}
+
+.icon-delete {
+  width: 24px; /* Или другой желаемый размер */
+  height: 24px;
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  cursor: pointer;
+}
+
+.icon-edit {
+  width: 30px; /* Или другой желаемый размер */
+  height: 30px;
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
+  cursor: pointer;
+}
+
+@media screen and (max-width: 480px) {
+  .teachers {
+    margin-top: 4rem;
+    margin-bottom: 4rem;
+  }
+
+  .teachers h2 {
+    font-size: 2.2rem;
+    margin-bottom: 3rem;
+  }
+
+  .teacher h3 {
+    font-size: 1.6rem;
+  }
+
+  .teacher p {
+    font-size: 1.4rem;
+    line-height: 1.5;
+  }
+}
