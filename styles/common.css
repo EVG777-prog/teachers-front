@@ -39,7 +39,6 @@ html {
 }
 
 main {
-  padding-top: 12rem; /* Высота должна быть равна или больше высоты вашего хедера */
   margin-left: auto;
   margin-right: auto;
 }
@@ -56,16 +55,4 @@ main {
 
 .no-scroll {
   overflow: hidden;
-}
-
-@media screen and (max-width: 768px) {
-  main {
-    padding-top: 8rem; /* Высота должна быть равна или больше высоты вашего хедера */
-  }
-}
-
-@media screen and (max-width: 480px) {
-  main {
-    padding-top: 6rem; /* Высота должна быть равна или больше высоты вашего хедера */
-  }
 }

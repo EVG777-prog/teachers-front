@@ -1,74 +1,253 @@
 document.addEventListener("DOMContentLoaded", (event) => {
+  const urlAPI = "https://teachers-api-ad8e708cac4e.herokuapp.com";
+
   // заполнение учителей
   const teachersContainer = document.querySelector(".teachers-container");
-  const teachersSection = document.querySelector(".teachers");
+  const addTeacherButton = document.querySelector("#add-teacher-button");
+  const teacherModal = document.querySelector("#teacher-modal");
+  const closeModalButton = document.querySelector("#close-modal-button");
+  const cancelButton = document.querySelector("#cancel-button");
+  const teacherForm = document.querySelector("#add-teacher-form");
 
-  fetchTeachers().then((teachers) => showTeachers(teachers));
+  showTeachers();
 
-  const teachersCards = teachersContainer.querySelectorAll(".teacher");
+  // Открытие модального окна
+  addTeacherButton.addEventListener("click", () => {
+    console.log("click");
+    openModal("Добавление нового учителя", "Добавить");
+  });
 
-  function showTeachers(teachers) {
-    console.log("showTeachers - teachers", teachers);
-    teachers.forEach((teacher) => {
-      const teacherElement = document.createElement("div");
-      teacherElement.classList.add("teacher");
-      teacherElement.setAttribute("data-teacher-id", teacher._id);
+  // Закрытие модального окна
+  closeModalButton.addEventListener("click", () => {
+    teacherModal.style.display = "none";
+  });
 
-      teacherElement.innerHTML = `
-           <img
-              src="${teacher.photo}"
-              alt="Photo of ${teacher.name}"
-              class="teacher-photo"
-            />
-            <div class="icon-delete">
-              <img src="assets/icon-delete.svg" alt="Delete" title="Удалить" class="icon-svg delete">
-            </div>
-            <div class="icon-edit">
-            <img src="assets/icon-edit.svg" alt="Edit" title="Изменить" class="icon-svg edit">
-          </div>
-            <h3>${teacher.name}</h3>
-            <p>${teacher.description}</p>
-          `;
+  // Закрытие модального окна по кнопке "Отмена"
+  cancelButton.addEventListener("click", () => {
+    teacherModal.style.display = "none";
+  });
 
-      teachersContainer.appendChild(teacherElement);
-    });
+  teacherForm.addEventListener("submit", async (event) => {
+    event.preventDefault();
+
+    let photoUrl;
+
+    const formData = new FormData(teacherForm);
+
+    // Формирование объекта с данными формы
+    const dataTeacher = {
+      name: formData.get("name"),
+      description: formData.get("description"),
+    };
+
+    const file = formData.get("photo");
+
+    const teacherId = teacherModal.getAttribute("data-teacher-id");
+
+    if (teacherId) {
+      updateTeacher(teacherId, dataTeacher);
+    } else {
+      dataTeacher.photo = await uploadPhoto(file);
+      addTeacher(dataTeacher);
+    }
+
+    // Закрытие модального окна
+    teacherModal.style.display = "none";
+  });
+
+  teachersContainer.addEventListener("click", function (event) {
+    // Проверяем, является ли элемент, по которому кликнули, иконкой изменения
+    if (event.target.matches(".icon-svg.edit")) {
+      const teacherCard = event.target.closest(".teacher");
+      const teacherId = teacherCard.getAttribute("data-teacher-id");
+      console.log("Изменение учителя:", teacherId);
+      const textName = teacherCard.querySelector("h3").textContent;
+      const textDescription = teacherCard.querySelector("p").textContent;
+
+      openModal(
+        "Изменение данных учителя",
+        "Изменить",
+        textName,
+        textDescription,
+        teacherId
+      );
+    }
+
+    // Проверяем, является ли элемент, по которому кликнули, иконкой удаления
+    if (event.target.matches(".icon-svg.delete")) {
+      const teacherCard = event.target.closest(".teacher");
+      const teacherId = teacherCard.getAttribute("data-teacher-id");
+      console.log("Удаление учителя:", teacherId);
+      deleteTeacher(teacherId);
+    }
+  });
+
+  async function addTeacher(data) {
+    // URL-адрес API для добавления нового учителя
+    const url = `${urlAPI}/teachers`;
+
+    // Параметры запроса
+    const options = {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    };
+
+    // Отправка запроса на API
+    const response = await fetch(url, options);
+
+    // Обработка ответа от API
+    if (response.ok) {
+      // Новый учитель успешно добавлен
+      const teacher = await response.json();
+      console.log("Новый учитель успешно добавлен:", teacher);
+      showTeachers();
+    } else {
+      // Ошибка при добавлении нового учителя
+      const error = await response.json();
+      console.error("Ошибка при добавлении нового учителя:", error);
+    }
   }
 
-  document
-    .querySelector(".teachers-container")
-    .addEventListener("click", function (event) {
-      console.log("click");
-      console.log(event);
-      // Проверяем, является ли элемент, по которому кликнули, иконкой изменения
-      if (event.target.matches(".icon-svg.edit")) {
-        const teacherCard = event.target.closest(".teacher");
-        const teacherId = teacherCard.getAttribute("data-teacher-id");
-        console.log("Изменение учителя:", teacherId);
-        // Добавьте здесь логику для изменения информации учителя
-      }
+  async function deleteTeacher(id) {
+    // URL-адрес API
+    const url = `${urlAPI}/teachers/${id}`;
 
-      // Проверяем, является ли элемент, по которому кликнули, иконкой удаления
-      if (event.target.matches(".icon-svg.delete")) {
-        const teacherCard = event.target.closest(".teacher");
-        const teacherId = teacherCard.getAttribute("data-teacher-id");
-        console.log("Удаление учителя:", teacherId);
-        // Добавьте здесь логику для удаления карточки учителя
-      }
+    // Отправка запроса на API
+    const response = await fetch(url, {
+      method: "DELETE",
     });
 
-  async function fetchTeachers() {
+    // Обработка ответа от API
+    if (response.ok) {
+      console.log("Teacher deleted successfully");
+      showTeachers();
+    } else {
+      console.error("Error deleting teacher");
+      console.log(response);
+    }
+  }
+
+  async function updateTeacher(id, data) {
+    // URL-адрес API для обновления данных учителя
+    const url = `${urlAPI}/teachers/${id}`;
+
+    // Параметры запроса
+    const options = {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    };
+
+    // Отправка запроса на API
+    const response = await fetch(url, options);
+
+    // Обработка ответа от API
+    if (response.ok) {
+      // Данные учителя успешно обновлены
+      console.log("Данные учителя успешно обновлены");
+      showTeachers();
+    } else {
+      // Ошибка при обновлении данных учителя
+      const error = await response.json();
+      console.error("Ошибка при обновлении данных учителя:", error);
+    }
+  }
+
+  async function showTeachers() {
+    const teachersCards = document.querySelectorAll(".teacher");
+
+    for (const teacherCard of teachersCards) {
+      teacherCard.parentNode.removeChild(teacherCard);
+    }
+
     try {
-      const response = await fetch(
-        "https://teachers-api-ad8e708cac4e.herokuapp.com/teachers"
-      );
+      const response = await fetch(`${urlAPI}/teachers`);
       if (!response.ok) {
         throw new Error("Network response was not ok");
       }
       const teachers = await response.json();
-      console.log(teachers); // This will log the array of teachers to the console
-      return teachers; // This returns the array of teachers
+
+      teachers.forEach((teacher) => {
+        const teacherElement = document.createElement("div");
+        teacherElement.classList.add("teacher");
+        teacherElement.setAttribute("data-teacher-id", teacher._id);
+
+        teacherElement.innerHTML = `
+             <img
+                src="${teacher.photo}"
+                alt="Photo of ${teacher.name}"
+                class="teacher-photo"
+              />
+              <div class="icon-delete">
+                <img src="assets/icon-delete.svg" alt="Delete" title="Удалить" class="icon-svg delete">
+              </div>
+              <div class="icon-edit">
+              <img src="assets/icon-edit.svg" alt="Edit" title="Изменить" class="icon-svg edit">
+            </div>
+              <h3>${teacher.name}</h3>
+              <p>${teacher.description}</p>
+            `;
+
+        // teachersContainer.appendChild(teacherElement);
+        teachersContainer.insertBefore(
+          teacherElement,
+          teachersContainer.lastElementChild
+        );
+      });
     } catch (error) {
       console.error("There was a problem with your fetch operation:", error);
+    }
+  }
+
+  function openModal(
+    textHeader,
+    textButtonConform,
+    textName = "",
+    textDescription = "",
+    teacherId = ""
+  ) {
+    teacherModal.style.display = "block";
+
+    const modalTitle = document.querySelector(".modal-title");
+    const teacherName = document.querySelector("#teacher-name");
+    const teacherDescription = document.querySelector("#teacher-description");
+    const buttonSubmit = document.querySelector(`button[type="submit"]`);
+    const inputFile = document.querySelector(`input[type="file"]`);
+
+    modalTitle.textContent = textHeader;
+    teacherName.value = textName;
+    teacherDescription.value = textDescription;
+    buttonSubmit.textContent = textButtonConform;
+    teacherModal.setAttribute("data-teacher-id", teacherId);
+
+    inputFile.required = teacherId ? false : true;
+  }
+
+  async function uploadPhoto(file, teacherId) {
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("upload_preset", "shuttle_school");
+
+    const response = await fetch(
+      "https://api.cloudinary.com/v1_1/daebcq7e1/image/upload",
+      {
+        method: "POST",
+        body: formData,
+      }
+    );
+
+    if (response.ok) {
+      const data = await response.json();
+      return data.url;
+    } else {
+      const error = await response.json();
+      console.error("Error uploading photo:", error);
+      return null;
     }
   }
 });

@@ -32,15 +32,77 @@
     />
     <link rel="stylesheet" href="./styles/common.css" />
     <link rel="stylesheet" href="./styles/teachers.css" />
+    <link rel="stylesheet" href="./styles/teacher-modal.css" />
   </head>
   <body>
     <main>
       <section class="teachers">
         <h2>Наші викладачі</h2>
-        <div class="teachers-container"></div>
+        <div class="teachers-container">
+          <div class="add-new" id="add-teacher-button">
+            <div class="icon-plus">
+              <img
+                src="assets/icon-plus.svg"
+                alt="Plus"
+                title="Добавить нового учителя"
+                class="icon-svg plus"
+              />
+            </div>
+          </div>
+        </div>
       </section>
     </main>
 
+    <div class="modal" id="teacher-modal" data-teacher-id="">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 class="modal-title">Добавить нового учителя</h2>
+          <button class="button" id="close-modal-button">✕</button>
+        </div>
+        <div class="modal-body">
+          <form id="add-teacher-form">
+            <div class="form-group">
+              <label for="teacher-name">Имя:</label>
+              <input
+                type="text"
+                id="teacher-name"
+                name="name"
+                class="form-control"
+                required
+              />
+            </div>
+            <div class="form-group">
+              <label for="teacher-description">Описание:</label>
+              <textarea
+                id="teacher-description"
+                name="description"
+                class="form-control"
+                required
+              ></textarea>
+            </div>
+            <div class="form-group">
+              <label for="teacher-photo">Фото:</label>
+              <input
+                type="file"
+                id="teacher-photo"
+                name="photo"
+                class="form-control"
+                accept="image/png, image/jpeg"
+                required
+              />
+            </div>
+            <div class="form-actions">
+              <button type="submit" class="button">Добавить</button>
+              <button type="button" class="button" id="cancel-button">
+                Отмена
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cloudinary-core/2.11.0/cloudinary.min.js"></script>
     <script src="./scripts/teachers.js"></script>
   </body>
 </html>
