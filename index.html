@@ -37,7 +37,21 @@
   <body>
     <main>
       <section class="teachers">
-        <h2>Наші викладачі</h2>
+        <div class="flex-row">
+          <h2>Наші викладачі</h2>
+          <div class="language-selector">
+            <label for="lang">Мова:</label>
+            <select id="lang" name="lang">
+              <option value="french">Французька</option>
+              <option value="spanish">Іспанська</option>
+              <option value="italian">Італійська</option>
+              <option value="german">Німецька</option>
+              <option value="english">Англійська</option>
+              <option value="chinese">Китайська</option>
+            </select>
+          </div>
+        </div>
+
         <div class="teachers-container">
           <div class="add-new" id="add-teacher-button">
             <div class="icon-plus">
@@ -87,7 +101,7 @@
                 id="teacher-photo"
                 name="photo"
                 class="form-control"
-                accept="image/png, image/jpeg"
+                accept="image/webp"
                 required
               />
             </div>

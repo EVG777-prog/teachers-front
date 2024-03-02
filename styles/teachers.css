@@ -1,16 +1,42 @@
 .teachers {
   text-align: center;
-  margin-top: 10rem;
-  margin-bottom: 10rem;
+  margin-top: 3rem;
+  margin-bottom: 3rem;
   padding: 0 5.6%;
 }
 
 .teachers h2 {
+  margin-left: 10rem;
+  margin-right: 10rem;
   font-family: "Exo", sans-serif;
   color: black;
   font-size: 3.6rem;
   font-weight: 700;
-  margin-bottom: 5rem;
+  margin-bottom: 1rem;
+}
+
+.language-selector {
+  width: 30rem;
+  padding: 1rem 2rem;
+  font-size: 2.5rem;
+  /*Размертекста*/
+  border: 1px solid black;
+  border-radius: 25px;
+}
+
+.language-selector select {
+  margin-left: 1rem;
+  font-size: 2rem;
+  padding: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 15px;
+  background-color: #f8f8f8;
+  cursor: pointer;
+}
+
+.language-selector select:focus {
+  outline: none; /* Убираем стандартный фокус браузера */
+  border-color: #b6b6b6; /* Цвет границы при фокусе */
 }
 
 .teachers-container {

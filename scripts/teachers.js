@@ -1,5 +1,6 @@
 document.addEventListener("DOMContentLoaded", (event) => {
-  const urlAPI = "https://teachers-api-ad8e708cac4e.herokuapp.com";
+  // const urlAPI = "https://teachers-api-ad8e708cac4e.herokuapp.com";
+  const urlAPI = "https://teachers-express-api.onrender.com";
 
   // заполнение учителей
   const teachersContainer = document.querySelector(".teachers-container");
@@ -8,8 +9,14 @@ document.addEventListener("DOMContentLoaded", (event) => {
   const closeModalButton = document.querySelector("#close-modal-button");
   const cancelButton = document.querySelector("#cancel-button");
   const teacherForm = document.querySelector("#add-teacher-form");
+  const langSelect = document.querySelector("#lang");
 
-  showTeachers();
+  showTeachers(langSelect.value);
+
+  langSelect.addEventListener("change", (e) => {
+    const lang = e.target.value;
+    showTeachers(lang);
+  });
 
   // Открытие модального окна
   addTeacherButton.addEventListener("click", () => {
@@ -30,6 +37,10 @@ document.addEventListener("DOMContentLoaded", (event) => {
   teacherForm.addEventListener("submit", async (event) => {
     event.preventDefault();
 
+    const lang = langSelect.value;
+
+    console.log(lang);
+
     let photoUrl;
 
     const formData = new FormData(teacherForm);
@@ -38,13 +49,19 @@ document.addEventListener("DOMContentLoaded", (event) => {
     const dataTeacher = {
       name: formData.get("name"),
       description: formData.get("description"),
+      lang: lang,
     };
 
     const file = formData.get("photo");
 
+    console.log(`File`, file);
+
     const teacherId = teacherModal.getAttribute("data-teacher-id");
 
     if (teacherId) {
+      if (file.name) {
+        dataTeacher.photo = await uploadPhoto(file);
+      }
       updateTeacher(teacherId, dataTeacher);
     } else {
       dataTeacher.photo = await uploadPhoto(file);
@@ -75,10 +92,13 @@ document.addEventListener("DOMContentLoaded", (event) => {
 
     // Проверяем, является ли элемент, по которому кликнули, иконкой удаления
     if (event.target.matches(".icon-svg.delete")) {
-      const teacherCard = event.target.closest(".teacher");
-      const teacherId = teacherCard.getAttribute("data-teacher-id");
-      console.log("Удаление учителя:", teacherId);
-      deleteTeacher(teacherId);
+      const isConfirmed = confirm("Вы уверены, что хотите удалить?");
+      if (isConfirmed) {
+        const teacherCard = event.target.closest(".teacher");
+        const teacherId = teacherCard.getAttribute("data-teacher-id");
+        console.log("Удаление учителя:", teacherId);
+        deleteTeacher(teacherId);
+      }
     }
   });
 
@@ -103,7 +123,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
       // Новый учитель успешно добавлен
       const teacher = await response.json();
       console.log("Новый учитель успешно добавлен:", teacher);
-      showTeachers();
+      showTeachers(langSelect.value);
     } else {
       // Ошибка при добавлении нового учителя
       const error = await response.json();
@@ -123,7 +143,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
     // Обработка ответа от API
     if (response.ok) {
       console.log("Teacher deleted successfully");
-      showTeachers();
+      showTeachers(langSelect.value);
     } else {
       console.error("Error deleting teacher");
       console.log(response);
@@ -150,7 +170,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
     if (response.ok) {
       // Данные учителя успешно обновлены
       console.log("Данные учителя успешно обновлены");
-      showTeachers();
+      showTeachers(langSelect.value);
     } else {
       // Ошибка при обновлении данных учителя
       const error = await response.json();
@@ -158,7 +178,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
     }
   }
 
-  async function showTeachers() {
+  async function showTeachers(language) {
     const teachersCards = document.querySelectorAll(".teacher");
 
     for (const teacherCard of teachersCards) {
@@ -166,7 +186,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
     }
 
     try {
-      const response = await fetch(`${urlAPI}/teachers`);
+      const response = await fetch(`${urlAPI}/teachers?lang=${language}`);
       if (!response.ok) {
         throw new Error("Network response was not ok");
       }
@@ -225,10 +245,11 @@ document.addEventListener("DOMContentLoaded", (event) => {
     buttonSubmit.textContent = textButtonConform;
     teacherModal.setAttribute("data-teacher-id", teacherId);
 
+    inputFile.value = "";
     inputFile.required = teacherId ? false : true;
   }
 
-  async function uploadPhoto(file, teacherId) {
+  async function uploadPhoto(file) {
     const formData = new FormData();
     formData.append("file", file);
     formData.append("upload_preset", "shuttle_school");
